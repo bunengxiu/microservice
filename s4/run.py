@@ -8,7 +8,7 @@ port = 40004
 dapr_port: int = 3500
 dapr_url = f'http://localhost:{dapr_port}/v1.0/invoke'
 s5_app_id = 's5'
-namespace = 'microservice'
+namespace = 'default'
 s5_method = 's5'
 s5_url = f'{dapr_url}/{s5_app_id}.{namespace}/method/{s5_method}'
 

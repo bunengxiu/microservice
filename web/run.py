@@ -6,10 +6,11 @@ app: FastAPI = FastAPI()
 host = '0.0.0.0'
 port = 40000
 dapr_port: int = 3500
+namespace = 'default'
 dapr_url = f'http://localhost:{dapr_port}/v1.0/invoke'
+state_url = f'http://localhost:{dapr_port}/v1.0/state/statestore'
 s1_app_id = 's1'
 s2_app_id = 's2'
-namespace = 'microservice'
 s1_method = 's1'
 s2_method = 's2'
 s1_url = f'{dapr_url}/{s1_app_id}.{namespace}/method/{s1_method}'
@@ -25,6 +26,27 @@ async def microservice():
         s2_res = await client.get(url=s2_url, headers={'Content-Type': 'application/json'})
         print(f'get from s2: {s2_res.json()}')
     return {'current_service': 'web', 's1': s1_res.json(), 's2': s2_res.json()}
+
+
+@app.post('/neworder')
+async def neworder(order_info: dict):
+    async with httpx.AsyncClient() as client:
+        state = [{'key': 'order', 'value': order_info}]
+        state_res = await client.post(url=state_url, json=state)
+        print(f'status code: {state_res.status_code}')
+    return {'current_service': 'web', 'status code': state_res.status_code}
+
+
+@app.get('/order')
+async def order():
+    async with httpx.AsyncClient() as client:
+        state_res = await client.get(url=f'{state_url}/order')
+        print(f'status code: {state_res.status_code}')
+        try:
+            print(f'get from state: {state_res.json()}')
+        except Exception as e:
+            print(e)
+    return {'current_service': 'web', 'order': state_res.json()}
 
 
 if __name__ == '__main__':

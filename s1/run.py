@@ -8,7 +8,7 @@ port = 40001
 dapr_port: int = 3500
 dapr_url = f'http://localhost:{dapr_port}/v1.0/invoke'
 s3_app_id = 's3'
-namespace = 'microservice'
+namespace = 'default'
 s3_method = 's3'
 s3_url = f'{dapr_url}/{s3_app_id}.{namespace}/method/{s3_method}'
 

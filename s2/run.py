@@ -8,7 +8,7 @@ port = 40002
 dapr_port: int = 3500
 dapr_url = f'http://localhost:{dapr_port}/v1.0/invoke'
 s4_app_id = 's4'
-namespace = 'microservice'
+namespace = 'default'
 s4_method = 's4'
 s4_url = f'{dapr_url}/{s4_app_id}.{namespace}/method/{s4_method}'
 
