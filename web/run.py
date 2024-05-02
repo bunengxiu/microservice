@@ -10,6 +10,7 @@ namespace = 'default'
 dapr_url = f'http://localhost:{dapr_port}/v1.0/invoke'
 state_url = f'http://localhost:{dapr_port}/v1.0/state/statestore'
 publish_url = f'http://localhost:{dapr_port}/v1.0/publish/pubsub'
+input_bindings_url = f'http://localhost:{dapr_port}/v1.0/bindings/bindings'
 s1_app_id = 's1'
 s2_app_id = 's2'
 s1_method = 's1'
@@ -71,6 +72,22 @@ async def order_subscribe(request: Request):
     message = await request.json()
     print(f"Received message {message}", flush=True)
     return {'success': True, 'received message info': message}
+
+
+@app.post('/input-bindings')
+async def input_bindings(payload: dict):
+    async with httpx.AsyncClient() as client:
+        print(f'input bindings: {payload}')
+        input_res = await client.post(url=input_bindings_url, json=payload)
+        print(f'input bindings, status code: {input_res.status_code}')
+    return {'current_service': 'web', 'input bindings status code': input_res.status_code}
+
+
+@app.post('/bindings')
+async def out_bindings(request: Request):
+    payload = await request.json()
+    print(f"out bindings, Received payload {payload}", flush=True)
+    return {'current_service': 'web', 'received payload info': payload}
 
 
 if __name__ == '__main__':

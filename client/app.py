@@ -32,6 +32,13 @@ def publish(nu, ul):
     print("HTTP %d => %s" % (response.status_code, response.content.decode("utf-8")), flush=True)
 
 
+def input_bindings(nu, ul):
+    payload = {"data": {"orderId": nu}, 'operation': 'create'}
+    print(f'input bindings url: {ul}, data: {payload}')
+    response = requests.post(ul, json=payload, headers={'Content-Type': 'application/json'})
+    print("HTTP %d => %s" % (response.status_code, response.content.decode("utf-8")), flush=True)
+
+
 n = 0
 while True:
     n += 1
@@ -57,5 +64,10 @@ while True:
     method = 'publish'
     url = f'{dapr_url}/{app_id}.{namespace}/method/{method}'
     publish(n, url)
+
+    # publish message
+    method = 'input-bindings'
+    url = f'{dapr_url}/{app_id}.{namespace}/method/{method}'
+    input_bindings(n, url)
 
     time.sleep(1)
