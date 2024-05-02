@@ -25,6 +25,13 @@ def order(ul):
     print("HTTP %d => %s" % (response.status_code, response.content.decode("utf-8")), flush=True)
 
 
+def publish(nu, ul):
+    message = {"orderId": nu}
+    print(f'publish message, url: {ul}, message: {message}')
+    response = requests.post(ul, json=message, headers={'Content-Type': 'application/json'})
+    print("HTTP %d => %s" % (response.status_code, response.content.decode("utf-8")), flush=True)
+
+
 n = 0
 while True:
     n += 1
@@ -45,4 +52,10 @@ while True:
     method = 'order'
     url = f'{dapr_url}/{app_id}.{namespace}/method/{method}'
     order(url)
+
+    # publish message
+    method = 'publish'
+    url = f'{dapr_url}/{app_id}.{namespace}/method/{method}'
+    publish(n, url)
+
     time.sleep(1)

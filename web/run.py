@@ -1,6 +1,6 @@
 import uvicorn
 import httpx
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 
 app: FastAPI = FastAPI()
 host = '0.0.0.0'
@@ -9,6 +9,7 @@ dapr_port: int = 3500
 namespace = 'default'
 dapr_url = f'http://localhost:{dapr_port}/v1.0/invoke'
 state_url = f'http://localhost:{dapr_port}/v1.0/state/statestore'
+publish_url = f'http://localhost:{dapr_port}/v1.0/publish/pubsub'
 s1_app_id = 's1'
 s2_app_id = 's2'
 s1_method = 's1'
@@ -47,6 +48,29 @@ async def order():
         except Exception as e:
             print(e)
     return {'current_service': 'web', 'order': state_res.json()}
+
+
+@app.post('/publish')
+async def publish(message: dict):
+    async with httpx.AsyncClient() as client:
+        print(f'publish message: {message}')
+        pub_res = await client.post(url=f'{publish_url}/orders', json=message)
+        print(f'publish, status code: {pub_res.status_code}')
+    return {'current_service': 'web', 'publish status code': pub_res.status_code}
+
+
+@app.get('/dapr/subscribe')
+async def subscribe():
+    subscriptions = [{'pubsubname': 'pubsub', 'topic': 'orders', 'route': 'orders'}]
+    print(f"subscribe message: {subscriptions}", flush=True)
+    return subscriptions
+
+
+@app.post('/orders')
+async def order_subscribe(request: Request):
+    message = await request.json()
+    print(f"Received message {message}", flush=True)
+    return {'success': True, 'received message info': message}
 
 
 if __name__ == '__main__':
